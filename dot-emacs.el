@@ -1,11 +1,19 @@
-(setq backup-directory-alist '(("." .  "/Users/sam/.saves")))
+;; central backup repo (if the dir is there
+(if (file-exists-p (concat (getenv "HOME") "/.emacs-backup")) 
+    (progn 
+      (setq backup-directory-alist '(("." .  (concat (getenv "HOME") "/.emacs-backup"))))
+      (setq delete-old-versions t
+	    kept-new-versions 6
+	    kept-old-versions 2
+	    version-control t )
+      )
+  )
 
-(setq delete-old-versions t
-  kept-new-versions 6
-  kept-old-versions 2
-  version-control t)
+(setq comment-column 80)
 
-(global-set-key   [f1]    'describe-function)
+
+(global-set-key   "\C-?" 'help)
+(global-set-key   [f1]    'describe-binding)
 (global-set-key   [f2]    'goto-line)
 
 (defun indent-buffer ()
@@ -14,12 +22,11 @@
   (delete-trailing-whitespace)
   (indent-region (point-min) (point-max) nil)
   (untabify (point-min) (point-max)))
-										
-(setq comment-column 80)
+
+(global-set-key "" 'comment-or-uncomment-region) ; C-\\ is comment
 
 (defun set-comment-indent ()
   (local-set-key (kbd "#") 'comment-indent ))
-		
 (add-hook 'perl-mode-hook 'set-comment-indent)
 
 (global-set-key   [f3]    'calc)
@@ -31,7 +38,7 @@
     (compile compile-command) ) )
 
 (global-set-key   [f5]    'compile-or-eval)
-(global-set-key "" (quote comment-or-uncomment-region)); C-\\ is comment
+
 (global-set-key   [f6]    'ispell-buffer)
 
 (setq http-error-command "tail -f /var/log/apache2/error_log" )
@@ -48,14 +55,17 @@
 (global-set-key   [f10]   'replace-string)
 (global-set-key   [f11]   'repeat-complex-command)
 (global-set-key   [f12]   'list-buffers)
-                                        ;(global-set-key   "\eOc"       'help-for-help)
+
+
 (global-set-key   "\C-h"        'delete-backward-char)
 (global-set-key   [end]    'end-of-line)
 (global-set-key   [home]   'beginning-of-line)
 
 (global-set-key "\215" (quote complete-tag))  ;; alt-return is complete tag
+
 (global-set-key (quote [M-right]) (quote next-multiframe-window))
 (global-set-key (quote [M-left]) (quote previous-multiframe-window))
+
 (global-unset-key (kbd "M-SPC"))
 (global-set-key (kbd "M-SPC") (quote set-mark-command))
 
@@ -94,9 +104,9 @@
           (lambda () (flymake-mode t)))
 
 (global-set-key (quote [67108910]) (quote flymake-goto-next-error))  ; cntl-. is next error
+
 (setq tags-revert-without-query t) ;; autoload tags file
 (setq tags-add-tables t) ;; when a new tabe is added then add;
-
 (defun load-tags-if-there ()
   (interactive)
   (if (file-exists-p "TAGS" )
@@ -180,7 +190,7 @@
       (lambda (buffer &optional args)
         (switch-to-buffer buffer)
         (get-buffer-window buffer 0)))
-
+v
 
 (setq latex-mode-hook
       '(lambda ()
@@ -206,7 +216,6 @@
 
 
 ;;;; pressing ESC-ESC is a pain, undefine it ...
-
 (global-unset-key "\e\e")
 
 (put 'upcase-region 'disabled nil)
