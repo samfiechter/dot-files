@@ -1,13 +1,31 @@
+
+(defvar figlet-command "/usr/local/bin/figlet")
+(if (file-exists-p figlet-command)
+    (defun insert-figlet (figlet-args) "Insert a figlet string (http://www.figlet.org/) into your buffer and comment it out"
+      (interactive "sfiglet ")
+      (let ((output-string "")
+            (cs comment-start)
+            (ce comment-end))
+        (with-temp-buffer
+          (shell-command (concat figlet-command " " figlet-args) (current-buffer))
+          (beginning-of-buffer)
+          (while (not (eobp))
+            (setq output-string (concat output-string cs "\t" (substring (thing-at-point 'line) 0 -1) "\t" ce "\n"))
+            (next-line) ))
+        (insert output-string)  ))
+  (global-set-key (kbd "\C-x g") 'insert-figlet)  )
+
+
 ;; central backup repo (if the dir is there
-(if (file-exists-p (concat (getenv "HOME") "/.emacs-backup")) 
-    (progn 
-      (setq backup-directory-alist '(("." .  (concat (getenv "HOME") "/.emacs-backup"))))
-      (setq delete-old-versions t
-	    kept-new-versions 6
-	    kept-old-versions 2
-	    version-control t )
-      )
-  )
+(let* ((savedir (concat (getenv "HOME") "/.emacs-backup"))
+       (bdal (list (cons "." savedir))))
+  (if (file-exists-p savedir)
+      (progn
+        (setq backup-directory-alist bdal)
+        (setq delete-old-versions t
+              kept-new-versions 6
+              kept-old-versions 2
+              version-control t )) ) )
 
 (setq comment-column 80)
 
@@ -77,7 +95,7 @@
 (add-to-list 'same-window-buffer-names "*Help*")
 (add-to-list 'same-window-buffer-names "*compilation*")
 (add-to-list 'same-window-buffer-names "*Buffer List*")
-                                        ;(add-to-list 'same-window-buffer-names "*Completions*")
+                                                                                ;(add-to-list 'same-window-buffer-names "*Completions*")
 
 
 (setq c-default-style '((java-mode . "java")
@@ -164,17 +182,17 @@
 
 (if (file-exists-p "/usr/bin/pbpaste")
     (progn    (defun mac-copy ()
-		(shell-command-to-string "pbpaste"))
+                (shell-command-to-string "pbpaste"))
 
-	      (defun mac-paste (text &optional push)
-		(let ((process-connection-type nil))
-		  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-		    (process-send-string proc text)
-		    (process-send-eof proc))))
+              (defun mac-paste (text &optional push)
+                (let ((process-connection-type nil))
+                  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+                    (process-send-string proc text)
+                    (process-send-eof proc))))
 
-	      (setq interprogram-cut-function 'mac-paste)
-	      (setq interprogram-paste-function 'mac-copy)
-	      ) nil )
+              (setq interprogram-cut-function 'mac-paste)
+              (setq interprogram-paste-function 'mac-copy)
+              ) nil )
 
 (setq c++-electric-colon nil)
 
@@ -190,7 +208,7 @@
       (lambda (buffer &optional args)
         (switch-to-buffer buffer)
         (get-buffer-window buffer 0)))
-v
+
 
 (setq latex-mode-hook
       '(lambda ()
@@ -222,7 +240,7 @@ v
 (global-unset-key "\e[")
 (global-set-key   [hpDeleteChar]       'delete-char)
 
-         
+
 
 (if (file-exists-p "/opt/local/bin/aspell")
     (setq-default ispell-program-name "/opt/local/bin/aspell") nil)
