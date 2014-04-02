@@ -1,19 +1,40 @@
+(defun find-in-path (cmd)
+  (let ((path (split-string (getenv "PATH") ":"))
+	(fullpath nil))
+    (dolist (dir path)
+      (if (file-exists-p (concat dir "/" cmd))
+	  (setq fullpath (concat dir "/" cmd))
+	nil))
+    fullpath))
 
-(defvar figlet-command "/usr/local/bin/figlet")
-(if (file-exists-p figlet-command)
-    (defun insert-figlet (figlet-args) "Insert a figlet string (http://www.figlet.org/) into your buffer and comment it out"
-      (interactive "sfiglet ")
-      (let ((output-string "")
-            (cs comment-start)
-            (ce comment-end))
-        (with-temp-buffer
-          (shell-command (concat figlet-command " " figlet-args) (current-buffer))
-          (beginning-of-buffer)
+
+
+;	  __ _       _      _   	
+;	 / _(_) __ _| | ___| |_ 	
+;	| |_| |/ _` | |/ _ \ __|	
+;	|  _| | (_| | |  __/ |_ 	
+;add 	|_| |_|\__, |_|\___|\__| text in a comment
+;	       |___/            	
+
+(defvar figlet-command (find-in-path "figlet"))
+
+(if figlet-command
+    (progn
+      (defun insert-figlet (figlet-args) "Insert a figlet string (http://www.figlet.org/) into your buffer and comment it out"
+	     (interactive "sfiglet ")
+	     (let ((output-string "")
+		   (cs comment-start)
+		   (ce comment-end))
+	       (with-temp-buffer
+		 (shell-command (concat figlet-command " " figlet-args) (current-buffer))
+		 (beginning-of-buffer)
           (while (not (eobp))
             (setq output-string (concat output-string cs "\t" (substring (thing-at-point 'line) 0 -1) "\t" ce "\n"))
             (next-line) ))
-        (insert output-string)  ))
-  (global-set-key (kbd "\C-x g") 'insert-figlet)  )
+	       (insert output-string)  ))
+      (global-set-key (kbd "\C-x g") 'insert-figlet) )
+  nil)
+      
 
 
 ;; central backup repo (if the dir is there
@@ -74,8 +95,8 @@
 (global-set-key   [f11]   'repeat-complex-command)
 (global-set-key   [f12]   'list-buffers)
 
-
-(global-set-key   "\C-h"        'delete-backward-char)
+(global-unset-key (kbd "\C-h"))
+(global-set-key   (kbd "\C-h")        'delete-backward-char)
 (global-set-key   [end]    'end-of-line)
 (global-set-key   [home]   'beginning-of-line)
 
@@ -103,14 +124,14 @@
                         (c++-mode . "k&r")
                         (other . "k&r")))
 
-(add-to-list 'load-path "~/.emacs.d/")
+(add-to-list 'load-path "~/.emacs.d/sam")
+;(load "2048-game.el")
 
-(load "2048-game.el")
-(load "flymake-settings.el")
-(flymake-settings )
-(load "flymake-cssparse.el")
-(load "flymake-jslint.el")
-(load "flymake-cursor.el")
+;; (load "flymake-settings.el")
+;; (flymake-settings )
+;; (load "flymake-cssparse.el")
+;; (load "flymake-jslint.el")
+;; (load "flymake-cursor.el")
 
 ;;(add-hook 'js-mode-hook 'flymake-jslint-init)
 
@@ -180,19 +201,20 @@
 (setq c-label-offset -5)
 (define-key global-map "\M-OM" 'newline)
 
-(if (file-exists-p "/usr/bin/pbpaste")
-    (progn    (defun mac-copy ()
-                (shell-command-to-string "pbpaste"))
+(if (find-in-path "pbpaste")
+    (progn
+      (defun mac-copy ()
+	(shell-command-to-string "pbpaste"))
 
-              (defun mac-paste (text &optional push)
-                (let ((process-connection-type nil))
-                  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-                    (process-send-string proc text)
-                    (process-send-eof proc))))
+      (defun mac-paste (text &optional push)
+	(let ((process-connection-type nil))
+	  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+	    (process-send-string proc text)
+	    (process-send-eof proc))))
 
-              (setq interprogram-cut-function 'mac-paste)
-              (setq interprogram-paste-function 'mac-copy)
-              ) nil )
+      (setq interprogram-cut-function 'mac-paste)
+      (setq interprogram-paste-function 'mac-copy)
+      ) nil )
 
 (setq c++-electric-colon nil)
 
@@ -220,7 +242,7 @@
 (global-set-key "\C-c\C-p" 'center-paragraph)
 (global-set-key [delete] 'delete-char)
 (global-set-key [backspace] 'delete-backward-char)
-(global-set-key "\C-x j" 'indent-region)
+(global-set-key (kbd "\C-x j") 'indent-region)
 (define-key global-map "\M-g" 'goto-line)
 (define-key global-map "\C-O" 'isearch-forward-regexp)
 
