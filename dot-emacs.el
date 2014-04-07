@@ -1,4 +1,4 @@
-(defun find-in-path (cmd)
+(defun find-in-path (cmd) "search the env-var $PATH for the file passed"
   (let ((path (split-string (getenv "PATH") ":"))
 	(fullpath nil))
     (dolist (dir path)
@@ -17,7 +17,6 @@
 ;	       |___/            	
 
 (defvar figlet-command (find-in-path "figlet"))
-
 (if figlet-command
     (progn
       (defun insert-figlet (figlet-args) "Insert a figlet string (http://www.figlet.org/) into your buffer and comment it out"
@@ -34,8 +33,12 @@
 	       (insert output-string)  ))
       (global-set-key (kbd "\C-x g") 'insert-figlet) )
   nil)
-      
 
+(define-key help-map [left] 'help-go-back)
+(define-key help-map [right] 'help-go-forward)      
+
+(define-key lisp-interaction-mode-map (kbd "M-?") 'describe-function)
+(define-key emacs-lisp-mode-map (kbd "M-?") 'describe-function)
 
 ;; central backup repo (if the dir is there
 (let* ((savedir (concat (getenv "HOME") "/.emacs-backup"))
@@ -50,8 +53,13 @@
 
 (setq comment-column 80)
 
+(defun google-search (url)
+  "search the google"
+  (interactive "sQuery:")
+  (eww (concat "https://www.google.com/search?q=" (url-encode-url url))) )
 
-(global-set-key   "\C-?" 'help)
+(global-set-key   (kbd "C-M-g") 'google-search)
+(global-set-key   (kbd "C-?") 'help)
 (global-set-key   [f1]    'describe-binding)
 (global-set-key   [f2]    'goto-line)
 
@@ -77,17 +85,20 @@
     (compile compile-command) ) )
 
 (global-set-key   [f5]    'compile-or-eval)
+(defun ispell-sam ()
+  "spell either the buffer or region"
+  (interactive)
+  (if (mark-active)
+      (ispell-region)
+    (ispell buffer)))
 
-(global-set-key   [f6]    'ispell-buffer)
-
+(global-set-key   [f6]    'ispell-sam)
 (setq http-error-command "tail -f /var/log/apache2/error_log" )
-
 (defun http-error-log ()
   (interactive)
   (async-shell-command  http-error-command)
   (switch-to-buffer "*Async Shell Command*")
   (rename-buffer "error.log"))
-
 (global-set-key   [f7]    'http-error-log)
 (global-set-key   [f8]    'rename-buffer)
 (global-set-key   [f9]    'query-replace)
@@ -95,8 +106,8 @@
 (global-set-key   [f11]   'repeat-complex-command)
 (global-set-key   [f12]   'list-buffers)
 
-(global-unset-key (kbd "\C-h"))
-(global-set-key   (kbd "\C-h")        'delete-backward-char)
+(global-unset-key (kbd "C-h"))
+(global-set-key   (kbd "C-h")        'delete-backward-char)
 (global-set-key   [end]    'end-of-line)
 (global-set-key   [home]   'beginning-of-line)
 
@@ -125,7 +136,7 @@
                         (other . "k&r")))
 
 (add-to-list 'load-path "~/.emacs.d/sam")
-;(load "2048-game.el")
+(load "2048-game.el")
 
 ;; (load "flymake-settings.el")
 ;; (flymake-settings )
@@ -145,7 +156,7 @@
 (global-set-key (quote [67108910]) (quote flymake-goto-next-error))  ; cntl-. is next error
 
 (setq tags-revert-without-query t) ;; autoload tags file
-(setq tags-add-tables t) ;; when a new tabe is added then add;
+(setq tags-add-tables t) ;; when a new tabel is added then add;
 (defun load-tags-if-there ()
   (interactive)
   (if (file-exists-p "TAGS" )
@@ -269,4 +280,20 @@
 (setq-default ispell-extra-args '("--reverse"))
 
 (desktop-save-mode 1)
+
+(let ((company-dir (concat (getenv "HOME") "/.emacs.d/elpa/company-0.7.3")))
+(if (file-exists-p company-dir)
+    (progn
+      (add-to-list 'load-path company-dir)
+      (autoload 'company-mode "company" nil t)
+      (add-hook 'perl-mode-hook 'company-mode)
+      (add-hook 'emacs-lisp-mode-hook 
+      (add-hook 'js-mode-hook 'company-mode)
+      (add-hook 'css-mode-hook 'company-mode)
+      (add-hook 'c++-mode-hook 'company-mode)
+      )
+  
+  nil))
+
+
 (setq default-directory "~/")
