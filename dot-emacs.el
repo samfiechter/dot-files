@@ -287,13 +287,12 @@
       (add-to-list 'load-path company-dir)
       (autoload 'company-mode "company" nil t)
       (add-hook 'perl-mode-hook 'company-mode)
-      (add-hook 'emacs-lisp-mode-hook 
+      (add-hook 'emacs-lisp-mode-hook 'company-mode)
       (add-hook 'js-mode-hook 'company-mode)
       (add-hook 'css-mode-hook 'company-mode)
       (add-hook 'c++-mode-hook 'company-mode)
-      )
-  
-  nil))
+     )
+    nil))
 
 
 (setq default-directory "~/")
