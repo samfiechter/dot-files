@@ -53,11 +53,19 @@
 
 (setq comment-column 80)
 
+
+(defun kill-every-buffer-but-this-one ()
+"Kills all the buffers but this one" (interactive)
+(let ((bl (buffer-list)))
+  (dolist (b bl)
+    (if (equal (current-buffer) b) nil (kill-buffer b)))))
+(global-set-key (kbd "C-x K") 'kill-every-buffer-but-this-one)
+
 (defun google-search (url)
   "search the google"
   (interactive "sQuery:")
   (eww (concat "https://www.google.com/search?q=" (url-encode-url url))) )
-
+(global-set-key   (kbd "C-x x") 'previous-buffer)
 (global-set-key   (kbd "C-M-g") 'google-search)
 (global-set-key   (kbd "C-?") 'help)
 (global-set-key   [f1]    'describe-binding)
