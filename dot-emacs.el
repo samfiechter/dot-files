@@ -1,3 +1,5 @@
+(setenv "PATH" (concat (getenv "PATH") ":/Users/sam/bin:/usr/bin:/usr/local/bin"))
+
 (defun find-in-path (cmd) "search the env-var $PATH for the file passed"
   (let ((path (split-string (getenv "PATH") ":"))
 	(fullpath nil))
@@ -9,12 +11,12 @@
 
 
 
-;	  __ _       _      _   	
-;	 / _(_) __ _| | ___| |_ 	
-;	| |_| |/ _` | |/ _ \ __|	
-;	|  _| | (_| | |  __/ |_ 	
-;add 	|_| |_|\__, |_|\___|\__| text in a comment
-;	       |___/            	
+;;	  __ _       _      _   	
+;;	 / _(_) __ _| | ___| |_ 	
+;;	| |_| |/ _` | |/ _ \ __|	
+;;	|  _| | (_| | |  __/ |_ 	
+;;add 	|_| |_|\__, |_|\___|\__| text in a comment
+;;	       |___/            	
 
 (defvar figlet-command (find-in-path "figlet"))
 (if figlet-command
@@ -28,9 +30,12 @@
 		 (shell-command (concat figlet-command " " figlet-args) (current-buffer))
 		 (beginning-of-buffer)
           (while (not (eobp))
-            (setq output-string (concat output-string cs "\t" (substring (thing-at-point 'line) 0 -1) "\t" ce "\n"))
+            (setq output-string (concat output-string  "\t" (substring (thing-at-point 'line) 0 -1) "\t" "\n"))
             (next-line) ))
-	       (insert output-string)  ))
+	       (let (( p (point)))
+		 (insert output-string)  
+		 (comment-region p (point)))
+	       ))
       (global-set-key (kbd "\C-x g") 'insert-figlet) )
   nil)
 
