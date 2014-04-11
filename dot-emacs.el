@@ -57,6 +57,7 @@
 (defun kill-every-buffer-but-this-one ()
 "Kills all the buffers but this one" (interactive)
 (let ((bl (buffer-list)))
+  (delete-other-windows)
   (dolist (b bl)
     (if (equal (current-buffer) b) nil (kill-buffer b)))))
 (global-set-key (kbd "C-x K") 'kill-every-buffer-but-this-one)
@@ -68,7 +69,7 @@
 (global-set-key   (kbd "C-x x") 'previous-buffer)
 (global-set-key   (kbd "C-M-g") 'google-search)
 (global-set-key   (kbd "C-?") 'help)
-(global-set-key   [f1]    'describe-binding)
+(global-set-key   [f1]    'dscribe-key)
 (global-set-key   [f2]    'goto-line)
 
 (defun indent-buffer ()
@@ -84,7 +85,7 @@
   (local-set-key (kbd "#") 'comment-indent ))
 (add-hook 'perl-mode-hook 'set-comment-indent)
 
-(global-set-key   [f3]    'calc)
+(global-set-key   [f3]    'indent-buffer)
 (global-set-key   [f4]    'shell)
 
 (defun compile-or-eval () "Eval lisp buffers on f5" (interactive)
@@ -110,7 +111,7 @@
 (global-set-key   [f7]    'http-error-log)
 (global-set-key   [f8]    'rename-buffer)
 (global-set-key   [f9]    'query-replace)
-(global-set-key   [f10]   'replace-string)
+(global-set-key   [f10]   'calc)
 (global-set-key   [f11]   'repeat-complex-command)
 (global-set-key   [f12]   'list-buffers)
 
