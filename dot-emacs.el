@@ -27,7 +27,7 @@
 		   (cs comment-start)
 		   (ce comment-end))
 	       (with-temp-buffer
-		 (shell-command (concat figlet-command " -w " (int-to-string fill-column) " "figlet-args) (current-buffer))
+		 (shell-command (concat figlet-command " -w " (int-to-string fill-column) " " figlet-args) (current-buffer))
 		 (beginning-of-buffer)
           (while (not (eobp))
             (setq output-string (concat output-string  "\t" (substring (thing-at-point 'line) 0 -1) "\t" "\n"))
