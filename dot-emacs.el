@@ -27,7 +27,7 @@
 		   (cs comment-start)
 		   (ce comment-end))
 	       (with-temp-buffer
-		 (shell-command (concat figlet-command " " figlet-args) (current-buffer))
+		 (shell-command (concat figlet-command " -w " (int-to-string fill-column) " "figlet-args) (current-buffer))
 		 (beginning-of-buffer)
           (while (not (eobp))
             (setq output-string (concat output-string  "\t" (substring (thing-at-point 'line) 0 -1) "\t" "\n"))
@@ -42,7 +42,11 @@
 (define-key help-map [left] 'help-go-back)
 (define-key help-map [right] 'help-go-forward)      
 
+(defun delete-buffer () "call erase-buffer"
+        (call-interactively  'erase-buffer))
+
 (define-key lisp-interaction-mode-map (kbd "M-?") 'describe-function)
+(define-key lisp-interaction-mode-map (kbd "C-x k") 'delete-buffer)
 (define-key emacs-lisp-mode-map (kbd "M-?") 'describe-function)
 
 ;; central backup repo (if the dir is there
@@ -71,6 +75,11 @@
   "search the google"
   (interactive "sQuery:")
   (eww (concat "https://www.google.com/search?q=" (url-encode-url url))) )
+
+(global-set-key   [8388728]     'execute-extended-command) ;; s-x is execute 
+(global-set-key   [M-up]    'scroll-down-command)
+(global-set-key   [M-down]  'scroll-up-command)
+
 (global-set-key   (kbd "C-x x") 'previous-buffer)
 (global-set-key   (kbd "C-M-g") 'google-search)
 (global-set-key   (kbd "C-?") 'help)
@@ -127,8 +136,8 @@
 
 (global-set-key "\215" (quote complete-tag))  ;; alt-return is complete tag
 
-(global-set-key (quote [M-right]) (quote next-multiframe-window))
-(global-set-key (quote [M-left]) (quote previous-multiframe-window))
+(global-set-key [M-right] (quote next-multiframe-window))
+(global-set-key [M-left] (quote previous-multiframe-window))
 
 (global-unset-key (kbd "M-SPC"))
 (global-set-key (kbd "M-SPC") (quote set-mark-command))
@@ -293,7 +302,7 @@
     (setq-default ispell-program-name "/opt/local/bin/aspell") nil)
 (setq-default ispell-extra-args '("--reverse"))
 
-(desktop-save-mode 1)
+
 
 (let ((company-dir (concat (getenv "HOME") "/.emacs.d/elpa/company-0.7.3")))
 (if (file-exists-p company-dir)
@@ -308,5 +317,6 @@
      )
     nil))
 
-
+(desktop-save-mode nil)
 (setq default-directory "~/")
+(setq debug-on-error t)
