@@ -68,7 +68,7 @@
 (let ((bl (buffer-list)))
   (delete-other-windows)
   (dolist (b bl)
-    (if (equal (current-buffer) b) nil (kill-buffer b)))))
+    (if (equal (current-buffer) b) (message (concat "Killing every buffer but " (buffer-name) "...")) (kill-buffer b)))))
 (global-set-key (kbd "C-x K") 'kill-every-buffer-but-this-one)
 
 (defun google-search (url)
@@ -209,6 +209,7 @@
 (autoload 'objc-mode "cc-mode" "Objective-C Editing Mode" t)
 (setq auto-mode-alist
       (append '(("\\.C$"  . c++-mode)
+		("\\.cpp$" . c++-mode)
                 ("\\.cc$" . c++-mode)
                 ("\\.hh$" . c++-mode)
                 ("\\.pc$" . c++-mode)
