@@ -13,6 +13,7 @@
 (add-to-list 'package-archives
   '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
+(setq elfeed-max-connections 8)
 
 ;;	  __ _       _      _   	
 ;;	 / _(_) __ _| | ___| |_ 	
@@ -300,13 +301,9 @@
 (global-unset-key "\e[")
 (global-set-key   [hpDeleteChar]       'delete-char)
 
-
-
 (if (file-exists-p "/opt/local/bin/aspell")
     (setq-default ispell-program-name "/opt/local/bin/aspell") nil)
 (setq-default ispell-extra-args '("--reverse"))
-
-
 
 (let ((company-dir (concat (getenv "HOME") "/.emacs.d/elpa/company-0.7.3")))
 (if (file-exists-p company-dir)
@@ -324,3 +321,4 @@
 (desktop-save-mode nil)
 (setq default-directory "~/")
 (setq debug-on-error t)
+
