@@ -9,10 +9,7 @@
 	nil))
     fullpath))
 
-(require 'package)
-(add-to-list 'package-archives
-  '("melpa" . "http://melpa.milkbox.net/packages/") t)
-
+(setq ispell-program-name (find-in-path "ispell"))
 
 ;;	  __ _       _      _   	
 ;;	 / _(_) __ _| | ___| |_ 	
@@ -66,6 +63,7 @@
 (setq comment-column 80)
 
 
+
 (defun kill-every-buffer-but-this-one ()
 "Kills all the buffers but this one" (interactive)
 (let ((bl (buffer-list)))
@@ -86,8 +84,10 @@
 (global-set-key   (kbd "C-x x") 'previous-buffer)
 (global-set-key   (kbd "C-M-g") 'google-search)
 (global-set-key   (kbd "C-?") 'help)
-(global-set-key   [f1]    'dscribe-key)
+(global-set-key   [f1]    'help)
 (global-set-key   [f2]    'goto-line)
+(global-set-key   [C-s-268632092] (lambda () (interactive) (switch-to-buffer "*scratch*")))
+
 
 (defun indent-buffer ()
   "indent whole buffer"
@@ -324,3 +324,4 @@
 (desktop-save-mode nil)
 (setq default-directory "~/")
 (setq debug-on-error t)
+
