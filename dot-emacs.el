@@ -9,6 +9,15 @@
 	nil))
     fullpath))
 
+(add-to-list 'load-path "~/.emacs.d/sam")
+(load "2048-game.el")
+(load "eww.elc")
+;; (load "flymake-settings.el")
+;; (flymake-settings )
+;; (load "flymake-cssparse.el")
+;; (load "flymake-jslint.el")
+;; (load "flymake-cursor.el")
+
 (setq ispell-program-name (find-in-path "ispell"))
 
 ;;	  __ _       _      _   	
@@ -72,17 +81,19 @@
     (if (equal (current-buffer) b) (message (concat "Killing every buffer but " (buffer-name) "...")) (kill-buffer b)))))
 (global-set-key (kbd "C-x K") 'kill-every-buffer-but-this-one)
 
-(defun google-search (url)
+
+(defun web-search (url)
   "search the google"
   (interactive "sQuery:")
-  (eww (concat "https://www.google.com/search?q=" (url-encode-url url))) )
+  (eww (concat "https://duckduckgo.com/?q=" (url-encode-url url))))
+
 
 (global-set-key   [8388728]     'execute-extended-command) ;; s-x is execute 
 (global-set-key   [M-up]    'scroll-down-command)
 (global-set-key   [M-down]  'scroll-up-command)
 
 (global-set-key   (kbd "C-x x") 'previous-buffer)
-(global-set-key   (kbd "C-M-g") 'google-search)
+(global-set-key   (kbd "C-M-g") 'web-search)
 (global-set-key   (kbd "C-?") 'help)
 (global-set-key   [f1]    'help)
 (global-set-key   [f2]    'goto-line)
@@ -161,14 +172,8 @@
                         (c++-mode . "k&r")
                         (other . "k&r")))
 
-(add-to-list 'load-path "~/.emacs.d/sam")
-(load "2048-game.el")
 
-;; (load "flymake-settings.el")
-;; (flymake-settings )
-;; (load "flymake-cssparse.el")
-;; (load "flymake-jslint.el")
-;; (load "flymake-cursor.el")
+
 
 ;;(add-hook 'js-mode-hook 'flymake-jslint-init)
 
