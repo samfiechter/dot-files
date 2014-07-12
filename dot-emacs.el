@@ -2,52 +2,60 @@
 
 (defun find-in-path (cmd) "search the env-var $PATH for the file passed"
   (let ((path (split-string (getenv "PATH") ":"))
-	(fullpath nil))
+        (fullpath nil))
     (dolist (dir path)
       (if (file-exists-p (concat dir "/" cmd))
-	  (setq fullpath (concat dir "/" cmd))
-	nil))
+          (setq fullpath (concat dir "/" cmd))
+        nil))
     fullpath))
 
-(require 'package)
-(add-to-list 'package-archives
-  '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'load-path "~/.emacs.d/sam")
+;;(load "2048-game.el")
+(load "eww.elc")
+;; (load "flymake-settings.el")
+;; (flymake-settings )
+;; (load "flymake-cssparse.el")
+;; (load "flymake-jslint.el")
+;; (load "flymake-cursor.el")
+
 
 (setq elfeed-max-connections 8)
+(setq ispell-program-name (find-in-path "ispell"))
 
-;;	  __ _       _      _   	
-;;	 / _(_) __ _| | ___| |_ 	
-;;	| |_| |/ _` | |/ _ \ __|	
-;;	|  _| | (_| | |  __/ |_ 	
-;;add 	|_| |_|\__, |_|\___|\__| text in a comment
-;;	       |___/            	
+
+;;        __ _       _      _
+;;       / _(_) __ _| | ___| |_
+;;      | |_| |/ _` | |/ _ \ __|
+;;      |  _| | (_| | |  __/ |_
+;;add   |_| |_|\__, |_|\___|\__| text in a comment
+;;             |___/
 
 (defvar figlet-command (find-in-path "figlet"))
 (if figlet-command
     (progn
       (defun insert-figlet (figlet-args) "Insert a figlet string (http://www.figlet.org/) into your buffer and comment it out"
-	     (interactive "sfiglet ")
-	     (let ((output-string "")
-		   (cs comment-start)
-		   (ce comment-end))
-	       (with-temp-buffer
-		 (shell-command (concat figlet-command " -w " (int-to-string fill-column) " " figlet-args) (current-buffer))
-		 (beginning-of-buffer)
-          (while (not (eobp))
-            (setq output-string (concat output-string  "\t" (substring (thing-at-point 'line) 0 -1) "\t" "\n"))
-            (next-line) ))
-	       (let (( p (point)))
-		 (insert output-string)  
-		 (comment-region p (point)))
-	       ))
+        (interactive "sfiglet ")
+        (let ((output-string "")
+              (cs comment-start)
+              (ce comment-end))
+          (with-temp-buffer
+            (shell-command (concat figlet-command " -w " (int-to-string fill-column) " " figlet-args) (current-buffer))
+            (beginning-of-buffer)
+            (while (not (eobp))
+              (setq output-string (concat output-string  "\t" (substring (thing-at-point 'line) 0 -1) "\t" "\n"))
+              (next-line) ))
+          (let (( p (point)))
+            (insert output-string)
+            (comment-region p (point)))
+          ))
       (global-set-key (kbd "\C-x g") 'insert-figlet) )
   nil)
 
 (define-key help-map [left] 'help-go-back)
-(define-key help-map [right] 'help-go-forward)      
+(define-key help-map [right] 'help-go-forward)
 
 (defun delete-buffer () "call erase-buffer"
-        (call-interactively  'erase-buffer))
+  (call-interactively  'erase-buffer))
 
 (define-key lisp-interaction-mode-map (kbd "M-?") 'describe-function)
 (define-key lisp-interaction-mode-map (kbd "C-x k") 'delete-buffer)
@@ -67,28 +75,33 @@
 (setq comment-column 80)
 
 
+
 (defun kill-every-buffer-but-this-one ()
-"Kills all the buffers but this one" (interactive)
-(let ((bl (buffer-list)))
-  (delete-other-windows)
-  (dolist (b bl)
-    (if (equal (current-buffer) b) (message (concat "Killing every buffer but " (buffer-name) "...")) (kill-buffer b)))))
+  "Kills all the buffers but this one" (interactive)
+  (let ((bl (buffer-list)))
+    (delete-other-windows)
+    (dolist (b bl)
+      (if (equal (current-buffer) b) (message (concat "Killing every buffer but " (buffer-name) "...")) (kill-buffer b)))))
 (global-set-key (kbd "C-x K") 'kill-every-buffer-but-this-one)
 
-(defun google-search (url)
+
+(defun web-search (url)
   "search the google"
   (interactive "sQuery:")
-  (eww (concat "https://www.google.com/search?q=" (url-encode-url url))) )
+  (eww (concat "https://duckduckgo.com/?q=" (url-encode-url url))))
 
-(global-set-key   [8388728]     'execute-extended-command) ;; s-x is execute 
+
+(global-set-key   [8388728]     'execute-extended-command) ;; s-x is execute
 (global-set-key   [M-up]    'scroll-down-command)
 (global-set-key   [M-down]  'scroll-up-command)
 
 (global-set-key   (kbd "C-x x") 'previous-buffer)
-(global-set-key   (kbd "C-M-g") 'google-search)
+(global-set-key   (kbd "C-M-g") 'web-search)
 (global-set-key   (kbd "C-?") 'help)
-(global-set-key   [f1]    'dscribe-key)
+(global-set-key   [f1]    'help)
 (global-set-key   [f2]    'goto-line)
+(global-set-key   [C-s-268632092] (lambda () (interactive) (switch-to-buffer "*scratch*"))) ;; control-window-\ jump to scratch
+
 
 (defun indent-buffer ()
   "indent whole buffer"
@@ -102,6 +115,13 @@
 (defun set-comment-indent ()
   (local-set-key (kbd "#") 'comment-indent ))
 (add-hook 'perl-mode-hook 'set-comment-indent)
+
+(add-hook 'flymake-mode-hook (lambda () (interactive) (setq flymake-gui-warnings-enabled nil)))
+
+(global-unset-key (kbd "M-|"))
+(global-set-key   (kbd "M-|") (lambda () (interactive)
+                                (if mark-active
+                                    (indent-region) (indent-buffer))))
 
 (global-set-key   [f3]    'indent-buffer)
 (global-set-key   [f4]    'shell)
@@ -162,14 +182,8 @@
                         (c++-mode . "k&r")
                         (other . "k&r")))
 
-(add-to-list 'load-path "~/.emacs.d/sam")
-(load "2048-game.el")
 
-;; (load "flymake-settings.el")
-;; (flymake-settings )
-;; (load "flymake-cssparse.el")
-;; (load "flymake-jslint.el")
-;; (load "flymake-cursor.el")
+
 
 ;;(add-hook 'js-mode-hook 'flymake-jslint-init)
 
@@ -213,7 +227,7 @@
 (autoload 'objc-mode "cc-mode" "Objective-C Editing Mode" t)
 (setq auto-mode-alist
       (append '(("\\.C$"  . c++-mode)
-		("\\.cpp$" . c++-mode)
+                ("\\.cpp$" . c++-mode)
                 ("\\.cc$" . c++-mode)
                 ("\\.hh$" . c++-mode)
                 ("\\.pc$" . c++-mode)
@@ -243,13 +257,13 @@
 (if (find-in-path "pbpaste")
     (progn
       (defun mac-copy ()
-	(shell-command-to-string "pbpaste"))
+        (shell-command-to-string "pbpaste"))
 
       (defun mac-paste (text &optional push)
-	(let ((process-connection-type nil))
-	  (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-	    (process-send-string proc text)
-	    (process-send-eof proc))))
+        (let ((process-connection-type nil))
+          (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+            (process-send-string proc text)
+            (process-send-eof proc))))
 
       (setq interprogram-cut-function 'mac-paste)
       (setq interprogram-paste-function 'mac-copy)
@@ -306,19 +320,41 @@
 (setq-default ispell-extra-args '("--reverse"))
 
 (let ((company-dir (concat (getenv "HOME") "/.emacs.d/elpa/company-0.7.3")))
-(if (file-exists-p company-dir)
-    (progn
-      (add-to-list 'load-path company-dir)
-      (autoload 'company-mode "company" nil t)
-      (add-hook 'perl-mode-hook 'company-mode)
-      (add-hook 'emacs-lisp-mode-hook 'company-mode)
-      (add-hook 'js-mode-hook 'company-mode)
-      (add-hook 'css-mode-hook 'company-mode)
-      (add-hook 'c++-mode-hook 'company-mode)
-     )
+  (if (file-exists-p company-dir)
+      (progn
+        (add-to-list 'load-path company-dir)
+        (autoload 'company-mode "company" nil t)
+        (add-hook 'perl-mode-hook 'company-mode)
+        (add-hook 'emacs-lisp-mode-hook 'company-mode)
+        (add-hook 'js-mode-hook 'company-mode)
+        (add-hook 'css-mode-hook 'company-mode)
+        (add-hook 'c++-mode-hook 'company-mode)
+        )
     nil))
 
-(desktop-save-mode nil)
+
 (setq default-directory "~/")
 (setq debug-on-error t)
+
+(defadvice yes-or-no-p (around prevent-dialog activate)
+  "Prevent yes-or-no-p from activating a dialog"
+  (let ((use-dialog-box nil))
+    ad-do-it))
+(defadvice y-or-n-p (around prevent-dialog-yorn activate)
+  "Prevent y-or-n-p from activating a dialog"
+  (let ((use-dialog-box nil))
+    ad-do-it))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(use-dialog-box nil)
+ '(use-file-dialog nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
 
