@@ -1,4 +1,4 @@
-dot-emacs
+dot-files
 =========
 
-this is my .emacs file
+these are my config files.  
