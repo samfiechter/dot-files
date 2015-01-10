@@ -1,4 +1,3 @@
-(setenv "PATH" (concat (getenv "PATH") ":/Users/sam/bin:/usr/bin:/usr/local/bin"))
 
 (defun find-in-path (cmd) "search the env-var $PATH for the file passed"
   (let ((path (split-string (getenv "PATH") ":"))
@@ -9,9 +8,19 @@
         nil))
     fullpath))
 
-(add-to-list 'load-path "~/.emacs.d/sam")
+(setenv "PATH" (concat (getenv "PATH") ":/Users/sam/bin:/usr/bin:/usr/local/bin"))
+(add-to-list 'load-path  "~/.emacs.d/elpa/")
+
+
+(when (>= emacs-major-version 24)
+  (require 'package)
+  (package-initialize)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  )
+
+
 ;;(load "2048-game.el")
-(load "eww.elc")
+
 ;; (load "flymake-settings.el")
 ;; (flymake-settings )
 ;; (load "flymake-cssparse.el")
@@ -19,7 +28,16 @@
 ;; (load "flymake-cursor.el")
 
 
-(setq elfeed-max-connections 8)
+(require 'multi-web-mode)
+(setq mweb-default-major-mode 'html-mode)
+(setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
+                  (js-mode "<script[^>]*>" "</script>")
+                  (css-mode "<style[^>]*>" "</style>")))
+(setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
+(multi-web-global-mode 1)
+
+
+
 (setq ispell-program-name (find-in-path "ispell"))
 
 
@@ -187,10 +205,10 @@
 
 ;;(add-hook 'js-mode-hook 'flymake-jslint-init)
 
-(add-hook 'js-mode-hook
-          (lambda () (flymake-mode t)  ))
-(add-hook 'css-mode-hook
-          (lambda () (flymake-mode t)))
+;; (add-hook 'js-mode-hook
+;;           (lambda () (flymake-mode t)  ))
+;; (add-hook 'css-mode-hook
+;;           (lambda () (flymake-mode t)))
 (add-hook 'c++-mode-hook
           (lambda () (flymake-mode t)))
 
