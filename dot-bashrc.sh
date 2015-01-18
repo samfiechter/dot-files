@@ -113,6 +113,7 @@ function kill_prg {
     ps aux | grep $1 | grep -v grep | tr -s " " | cut -s -f 2 -d " " | xargs -n 1 -x kill
 }
 
+alias gitit='git commit -a -m "`date`"; git push'
 alias perlinstall='perl -MCPAN -e shell'
 alias ls='/bin/ls -h -G'
 alias ll='/bin/ls -lha -G'
