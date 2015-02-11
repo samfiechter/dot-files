@@ -110,7 +110,12 @@ alias undos="tr '\r' '\n'"
 alias whatsup="nmap -sP -T5 `ifconfig | grep "Bcast:"| sed 's/.*Bcast:\([^ ]*\).*/\1/' | sed 's/255/*/'`"
 #alias gsp="gs -q -r600 -g4736x6817 -sDEVICE=pbmraw -sOutputFile=- -dNOPAUSE -dBATCH"
 function kill_prg {
+if [ "" != "$1"]
+then 
     ps aux | grep $1 | grep -v grep | tr -s " " | cut -s -f 2 -d " " | xargs -n 1 -x kill
+else 
+    echo "kill_prg: Name"
+fi
 }
 
 alias gitit='git commit -a -m "`date`"; git push'
