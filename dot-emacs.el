@@ -26,18 +26,15 @@
 ;; (load "flymake-jslint.el")
 ;; (load "flymake-cursor.el")
 
-(eval-after-load 'multi-web-mode 
-  '(multi-web-global-mode 1))
-
-			       (setq mweb-default-major-mode 'html-mode)
-			       (setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
-						 (js-mode "<script[^>]*>" "</script>")
-						 (css-mode "<style[^>]*>" "</style>")))
-			       (setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
-
-
-
-
+(if (fboundp 'multi-web-mode )
+    (progn
+      (multi-web-global-mode 1)  
+      (setq mweb-default-major-mode 'html-mode)
+      (setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
+			(js-mode "<script[^>]*>" "</script>")
+			(css-mode "<style[^>]*>" "</style>")))
+      (setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
+      ) nil )
 (setq ispell-program-name (find-in-path "ispell"))
 
 
@@ -108,13 +105,15 @@
   (interactive "sQuery:")
   (eww (concat "https://duckduckgo.com/html/?q=" (url-encode-url url))))
 
+(global-set-key   (kbd "C-M-g") 'web-search)
+
 
 (global-set-key   [8388728]     'execute-extended-command) ;; s-x is execute
 (global-set-key   [M-up]    'scroll-down-command)
 (global-set-key   [M-down]  'scroll-up-command)
 
 (global-set-key   (kbd "C-x x") 'previous-buffer)
-(global-set-key   (kbd "C-M-g") 'web-sgearch)
+
 (global-set-key   (kbd "C-?") 'help)
 (global-set-key   [f1]    'help)
 (global-set-key   [f2]    'goto-line)
@@ -206,18 +205,38 @@
                         (other . "k&r")))
 
 
+(defun jslint-setup-sam () "Configurings for js-lint"
+       (progn
+	 (add-hook 'js-mode-hook 'flymake-jslint-init)
+	 ))
 
+(eval-after-load 'flymake-jslint 'jsline-setup-sam)
 
-;;(add-hook 'js-mode-hook 'flymake-jslint-init)
+(if (fboundp 'flymake-mode)
+       (progn
+	 (add-hook 'js-mode-hook
+		   (lambda () (flymake-mode t)  ))
+	 (add-hook 'css-mode-hook
+		   (lambda () (flymake-mode t)))
+	 (add-hook 'c++-mode-hook
+		   (lambda () (flymake-mode t)))
+	 (global-set-key (quote [67108910]) (quote flymake-goto-next-error))  ; cntl-. is next error
+	 ) nil )
 
-;; (add-hook 'js-mode-hook
-;;           (lambda () (flymake-mode t)  ))
-;; (add-hook 'css-mode-hook
-;;           (lambda () (flymake-mode t)))
-(add-hook 'c++-mode-hook
-          (lambda () (flymake-mode t)))
+(eval-after-load 'flymake-mode 'flymake-mode-sam)
 
-(global-set-key (quote [67108910]) (quote flymake-goto-next-error))  ; cntl-. is next error
+(if (fboundp 'company-mode)
+       (progn
+	 (add-hook 'js-mode-hook
+		   (lambda () (company-mode )))
+	 (add-hook 'css-mode-hook
+		   (lambda () (company-mode )))
+	 (add-hook 'c++-mode-hook
+		   (lambda () (company-mode )))
+	 (add-hook 'emacs-lisp-mode-hook
+		   (lambda () (company-mode )))
+	 ) nil )
+
 
 (setq tags-revert-without-query t) ;; autoload tags file
 (setq tags-add-tables t) ;; when a new tabel is added then add;
