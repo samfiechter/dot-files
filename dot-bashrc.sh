@@ -10,6 +10,8 @@ function unique_path {
 
 
 export PATH=`unique_path "/sbin:/usr/local/bin:/usr/local/sbin:${PATH}:.:${HOME}/bin"`
+export PERL_MB_OPT="--install_base \"/Users/sam/perl5\""; export PERL_MB_OPT;
+export PERL_MM_OPT="INSTALL_BASE=/Users/sam/perl5"; export PERL_MM_OPT;
 
 #export INCLUDE=`unique_path $INCLUDE:/usr/X11/include`
 #export LIBS=`unique_path $LIBS:/usr/X11/lib:`
@@ -52,14 +54,15 @@ if [ "screen" == "$TERM" ] ; then
             PS1='\w [\t] '
             ;;
     esac
-    . $HOME/bin/motd.sh
+#    . $HOME/bin/motd.sh
 else
     case $TERM in
         dumb*)
-            export PAGER=cat
+	    echo "Dumb Term..."
+	    export PAGER=cat
             TITLEBAR=''
             PS1='\w [\t] '
-	    . $HOME/bin/motd.sh
+#	    . $HOME/bin/motd.sh
             ;;
         *)
 	    export EDITOR=emacs
@@ -102,15 +105,35 @@ shopt -s checkwinsize
 unset LANG
 
 
+
+alias meacs="emacs"
 alias eamcs="emacs"
 alias emcas="emacs"
+alias emasc="emacs"
+
+alias xeit="exit"
+alias eixt="exit"
+alias exti="exit"
 
 #alias pi="lpr -H 192.168.100.2 -o raw ~scf/bin/sihp1000.img"
 alias undos="tr '\r' '\n'"
-alias whatsup="nmap -sP -T5 `ifconfig | grep "Bcast:"| sed 's/.*Bcast:\([^ ]*\).*/\1/' | sed 's/255/*/'`"
+function whatsup {
+    CMD="nmap -sP -T5 `ifconfig | grep cast | sed 's/.*[Bcast:|broadcast ]\([^ ]*\).*/\1/' | sed 's/255/*/'`"
+    echo $CMD
+    $CMD
+    }
 #alias gsp="gs -q -r600 -g4736x6817 -sDEVICE=pbmraw -sOutputFile=- -dNOPAUSE -dBATCH"
+function psg {
+if [ "" != "$1" ]
+then
+    ps aux |  grep $* | grep -v grep 
+else
+    echo "psg : Program name"
+fi 
+}
+
 function kill_prg {
-if [ "" != "$1"]
+if [ "" != "$1" ]
 then 
     ps aux | grep $1 | grep -v grep | tr -s " " | cut -s -f 2 -d " " | xargs -n 1 -x kill
 else 
@@ -119,7 +142,7 @@ fi
 }
 
 alias gitit='git commit -a -m "`date`"; git push'
-alias perlinstall='perl -MCPAN -e shell'
+alias perlinstall='/usr/local/bin/perl -MCPAN -e shell'
 alias ls='/bin/ls -h -G'
 alias ll='/bin/ls -lha -G'
 alias la='/bin/ls -ahl -G'

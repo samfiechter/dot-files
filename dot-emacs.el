@@ -1,4 +1,3 @@
-
 (defun find-in-path (cmd) "search the env-var $PATH for the file passed"
   (let ((path (split-string (getenv "PATH") ":"))
         (fullpath nil))
@@ -27,14 +26,15 @@
 ;; (load "flymake-jslint.el")
 ;; (load "flymake-cursor.el")
 
+(eval-after-load 'multi-web-mode 
+  '(multi-web-global-mode 1))
 
-(require 'multi-web-mode)
-(setq mweb-default-major-mode 'html-mode)
-(setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
-                  (js-mode "<script[^>]*>" "</script>")
-                  (css-mode "<style[^>]*>" "</style>")))
-(setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
-(multi-web-global-mode 1)
+			       (setq mweb-default-major-mode 'html-mode)
+			       (setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
+						 (js-mode "<script[^>]*>" "</script>")
+						 (css-mode "<style[^>]*>" "</style>")))
+			       (setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
+
 
 
 
@@ -106,7 +106,7 @@
 (defun web-search (url)
   "search the google"
   (interactive "sQuery:")
-  (eww (concat "https://duckduckgo.com/?q=" (url-encode-url url))))
+  (eww (concat "https://duckduckgo.com/html/?q=" (url-encode-url url))))
 
 
 (global-set-key   [8388728]     'execute-extended-command) ;; s-x is execute
@@ -114,12 +114,14 @@
 (global-set-key   [M-down]  'scroll-up-command)
 
 (global-set-key   (kbd "C-x x") 'previous-buffer)
-(global-set-key   (kbd "C-M-g") 'web-search)
+(global-set-key   (kbd "C-M-g") 'web-sgearch)
 (global-set-key   (kbd "C-?") 'help)
 (global-set-key   [f1]    'help)
 (global-set-key   [f2]    'goto-line)
 (global-set-key   [C-s-268632092] (lambda () (interactive) (switch-to-buffer "*scratch*"))) ;; control-window-\ jump to scratch
 
+(global-unset-key [M-c])
+(global-set-key [M-c] `comment-or-uncomment-region)
 
 (defun indent-buffer ()
   "indent whole buffer"
@@ -146,7 +148,10 @@
 
 (defun compile-or-eval () "Eval lisp buffers on f5" (interactive)
   (if (or (string= ".el" (substring (buffer-name) -3)) (string= ".emacs" (buffer-name)))
-      (progn (eval-buffer) (message "Buffer Eval'd!"))
+      (progn
+	(if (string-match "\\\\(provide '\\(.*?\\)" (buffer-string)) (unload-feature (match-string 1 (buffer-string))) nil )
+	(eval-buffer)
+	(message "Buffer Eval'd!"))
     (compile compile-command) ) )
 
 (global-set-key   [f5]    'compile-or-eval)
