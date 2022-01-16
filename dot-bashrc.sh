@@ -1,6 +1,9 @@
-# ~/.bashrc: executed by bash(1) for non-logisn shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-#~ [09:37:51] ln -s src/dot-bash/bashrc.sh .bashrc
+# ~/.bashrc: executed by bash(1) for every shell
+
+
+. "$(/opt/homebrew/bin/brew shellenv)"
+
+export BASH_SILENCE_DEPRECATION_WARNING=1
 
 
 # remove dups from path...
@@ -10,8 +13,8 @@ function unique_path {
 
 
 export PATH=`unique_path "/sbin:/usr/local/bin:/usr/local/sbin:${PATH}:.:${HOME}/bin"`
-export PERL_MB_OPT="--install_base \"/Users/sam/perl5\""; export PERL_MB_OPT;
-export PERL_MM_OPT="INSTALL_BASE=/Users/sam/perl5"; export PERL_MM_OPT;
+#export PERL_MB_OPT="--install_base \"/Users/sam/perl5\""; export PERL_MB_OPT;
+#export PERL_MM_OPT="INSTALL_BASE=/Users/sam/perl5"; export PERL_MM_OPT;
 
 #export INCLUDE=`unique_path $INCLUDE:/usr/X11/include`
 #export LIBS=`unique_path $LIBS:/usr/X11/lib:`
@@ -19,6 +22,30 @@ export PERL_MM_OPT="INSTALL_BASE=/Users/sam/perl5"; export PERL_MM_OPT;
 #export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$LIBS
 
 # for examples
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+
+    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+
+
+    
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+    . /etc/bash_completion
+fi
 
 if [ "screen" == "$TERM" ] ; then
     # set variable identifying the chroot you work in (used in the prompt below)
@@ -54,26 +81,9 @@ if [ "screen" == "$TERM" ] ; then
             PS1='\w [\t] '
             ;;
     esac
-#    . $HOME/bin/motd.sh
-else
-    case $TERM in
-        dumb*)
-	    echo "Dumb Term..."
-	    export PAGER=cat
-            TITLEBAR=''
-            PS1='\w [\t] '
-#	    . $HOME/bin/motd.sh
-            ;;
-        *)
-	    export EDITOR=emacs
-	    export PAGE=less
-            export OLDTERM=$TERM
-            screen -A -d -R -S $TERM  || screen -r
-            exit
-            logout
-            ;;
-    esac
+    #    . $HOME/bin/motd.sh
 fi
+    
 
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
@@ -104,8 +114,6 @@ shopt -s checkwinsize
 # enable color support of ls and also add handy aliases
 unset LANG
 
-
-
 alias meacs="emacs"
 alias eamcs="emacs"
 alias emcas="emacs"
@@ -117,12 +125,14 @@ alias exti="exit"
 
 #alias pi="lpr -H 192.168.100.2 -o raw ~scf/bin/sihp1000.img"
 alias undos="tr '\r' '\n'"
+
 function whatsup {
     CMD="nmap -sP -T5 `ifconfig | grep cast | sed 's/.*[Bcast:|broadcast ]\([^ ]*\).*/\1/' | sed 's/255/*/'`"
     echo $CMD
     $CMD
     }
 #alias gsp="gs -q -r600 -g4736x6817 -sDEVICE=pbmraw -sOutputFile=- -dNOPAUSE -dBATCH"
+
 function psg {
 if [ "" != "$1" ]
 then
@@ -148,28 +158,6 @@ alias ll='/bin/ls -lha -G'
 alias la='/bin/ls -ahl -G'
 alias rt='ls -a | grep -E "(\#.*\#|.*~)" | xargs -n 1 -x rm'
 
-weather(){ wget -q -O- "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=19807"|perl -ne '/<title>([^<]+)/&&printf "%s: ",$1;/<fcttext>([^<]+)/&&print $1,"\n"';}
+#weather(){ wget -q -O- "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=19807"|perl -ne '/<title>([^<]+)/&&printf "%s: ",$1;/<fcttext>([^<]+)/&&print $1,"\n"';}
 
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-
-    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
-    . /etc/bash_completion
-fi
-
-
+export PATH=`unique_path "${PATH}"`
