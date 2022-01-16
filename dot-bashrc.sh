@@ -1,7 +1,7 @@
 # ~/.bashrc: executed by bash(1) for every shell
 
 
-. "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
