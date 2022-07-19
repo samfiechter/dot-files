@@ -1,9 +1,13 @@
+#echo "${USER}@${HOSTNAME} .bashrc running..."
 # ~/.bashrc: executed by bash(1) for every shell
-
-
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
 export BASH_SILENCE_DEPRECATION_WARNING=1
+
+#  _____                 _   _
+# |  ___|   _ _ __   ___| |_(_) ___  _ __  ___
+# | |_ | | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+# |  _|| |_| | | | | (__| |_| | (_) | | | \__ \
+# |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+
 
 
 # remove dups from path...
@@ -11,8 +15,59 @@ function unique_path {
     echo $1 | tr ":" "\n" | sort | uniq | tr "\n" ":"
 }
 
+function whatsup {
+    MASK=$(ifconfig  | awk 'BEGIN { FS = "  *";} /cast/ {print $6}' | sed 's/255/*/')
+    CMD="nmap -sP -T5 $MASK"
+    echo $CMD
+    $CMD
+}
 
-export PATH=`unique_path "/sbin:/usr/local/bin:/usr/local/sbin:${PATH}:.:${HOME}/bin"`
+
+function psg {
+    if [ "" != "$1" ]
+    then
+        PRG=$1
+        ps aux | awk -v cmd="$PRG"  'BEGIN { FS = "  *"; OFS="\t";  print "looking for " cmd "\n";} NR==1 {print $2,$11;} $11 ~ cmd {print $2,$11;}'
+    else
+        echo "psg : Program name"
+    fi
+}
+
+# kill all programs named
+
+function killall {
+    if [ "" != "$1" ]
+    then
+        PRG=$1
+        ps aux | awk -v cmd="$PRG" 'BEGIN { FS = "  *"; OFS="\t"; print "looking for " cmd "\n";} NR==1 {print $2,$11;} $11 ~ cmd {print "killing " $11 "..."; system("kill -n 9 " $2);}'
+
+    else
+        echo "kill_prg: Name"
+    fi
+}
+
+#curl a wget
+
+function wget {
+    url=$1
+    file=`echo $url | sed 's#.*/##g';`
+    curl $url -o $file
+}
+
+#open in a new terminal window
+
+function new() {
+    if [[ $# -eq 0 ]]; then
+        open -a "Terminal" "$PWD"
+    else
+        open -a "Terminal" "$@"
+    fi
+}
+
+
+
+
+export PATH=`unique_path ":/sbin:/usr/local/bin:/usr/local/sbin:${PATH}:.:${HOME}/bin:"`
 #export PERL_MB_OPT="--install_base \"/Users/sam/perl5\""; export PERL_MB_OPT;
 #export PERL_MM_OPT="INSTALL_BASE=/Users/sam/perl5"; export PERL_MM_OPT;
 
@@ -21,17 +76,7 @@ export PATH=`unique_path "/sbin:/usr/local/bin:/usr/local/sbin:${PATH}:.:${HOME}
 #export LIBRARY_PATH=${LIBRARY_PATY}:$LIBS
 #export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$LIBS
 
-# for examples
 
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-
-    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-
-
-    
-# Alias definitions.
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
@@ -47,43 +92,65 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
 
-if [ "screen" == "$TERM" ] ; then
-    # set variable identifying the chroot you work in (used in the prompt below)
-    if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
-        debian_chroot=$(cat /etc/debian_chroot)
-    fi
 
-    if [ -n "$force_color_prompt" ]; then
-        if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-            # We have color support; assume it's compliant with Ecma-48
-            # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-            # a case would tend to support setf rather than setaf.)
-            color_prompt=yes
-        else
-            color_prompt=
-        fi
-        color_prompt=yes;
+# set variable identifying the chroot you work in (used in the prompt below)
+# Chroot is a unix feature that lets you restrict a process to a subtree of the
+#     filesystem. One traditional use is FTP servers that chroot to a subset of
+#     the filesystem containing only a few utilities and configuration files, plus
+#     the files to serve; that way, even if an intruder manages to exploit a bug
+#     in the server, they won't be able to access files outside the
+#     chroot. Another common use is when you're installing or repairing a unix
+#     system and you boot from a different system (such as a live CD): once a
+#     basic system is available, you can chroot into it and do more work.
+if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+    CHROOT_PROMPT= "(${debian_chroot})"
+fi
 
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+        # We have color support; assume it's compliant with Ecma-48
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+        # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
     else
-        unset color_prompt force_color_prompt
+        color_prompt=
     fi
-    
+    color_prompt=yes;
+
+else
+    unset color_prompt force_color_prompt
+fi
+
+if [ "screen" == "$TERM" ] ; then
     # set a fancy prompt (non-color, unless we know we "want" color)
     case "$OLDTERM" in
         xterm*)
+
+            #export TITLEBAR='\[\033k ${USER}@${HOSTNAME}\033\\\]'  ##Unix
+            export TITLEBAR="\[\033]0 \w ; \u@\h \007\]"
+            #PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: ${PWD}\007"'
             export color_prompt=yes;
             export GNUTERM=X11;
-            PS1='${TITLEBAR}\[\033k ${USER}@${HOSTNAME}\033\\\] \w [\t] '
-	    export CLICOLOR=cons25;
+            export PS1="${TITLEBAR}${CHROOT_PROMPT} \w [\@] "
+            export CLICOLOR=cons25;
             ;;
         *)
-            TITLEBAR=''
-            PS1='\w [\t] '
+            export TITLEBAR=''
+            export PS1="${CHROOT_PROMPT} \w [\@] "
             ;;
     esac
-    #    . $HOME/bin/motd.sh
+
+    export EDITOR=emacs
+    export PAGER=less
+
+else
+    export PAGER=cat
+    export TITLEBAR=''
+    export PS1='\w [\t] '
 fi
-    
+
 
 # If not running interactively, don't do anything
 [ -z "$PS1" ] && return
@@ -114,50 +181,56 @@ shopt -s checkwinsize
 # enable color support of ls and also add handy aliases
 unset LANG
 
+
+#     _    _ _
+#    / \  | (_) __ _ ___
+#   / _ \ | | |/ _` / __|
+#  / ___ \| | | (_| \__ \
+# /_/   \_\_|_|\__,_|___/
+#
+
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+alias port="echo 'use brew, dummy.'"
 alias meacs="emacs"
 alias eamcs="emacs"
 alias emcas="emacs"
 alias emasc="emacs"
 
+alias binview="hexdump -C"
+
 alias xeit="exit"
 alias eixt="exit"
 alias exti="exit"
-
-#alias pi="lpr -H 192.168.100.2 -o raw ~scf/bin/sihp1000.img"
 alias undos="tr '\r' '\n'"
-
-function whatsup {
-    CMD="nmap -sP -T5 `ifconfig | grep cast | sed 's/.*[Bcast:|broadcast ]\([^ ]*\).*/\1/' | sed 's/255/*/'`"
-    echo $CMD
-    $CMD
-    }
-#alias gsp="gs -q -r600 -g4736x6817 -sDEVICE=pbmraw -sOutputFile=- -dNOPAUSE -dBATCH"
-
-function psg {
-if [ "" != "$1" ]
-then
-    ps aux |  grep $* | grep -v grep 
-else
-    echo "psg : Program name"
-fi 
-}
-
-function kill_prg {
-if [ "" != "$1" ]
-then 
-    ps aux | grep $1 | grep -v grep | tr -s " " | cut -s -f 2 -d " " | xargs -n 1 -x kill
-else 
-    echo "kill_prg: Name"
-fi
-}
 
 alias gitit='git commit -a -m "`date`"; git push'
 alias perlinstall='/usr/local/bin/perl -MCPAN -e shell'
-alias ls='/bin/ls -h -G'
-alias ll='/bin/ls -lha -G'
+alias ls='/bin/ls -h -G --color=auto'
+alias ll='/bin/ls -lha -G --color=auto'
 alias la='/bin/ls -ahl -G'
-alias rt='ls -a | grep -E "(\#.*\#|.*~)" | xargs -n 1 -x rm'
-
-#weather(){ wget -q -O- "http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=19807"|perl -ne '/<title>([^<]+)/&&printf "%s: ",$1;/<fcttext>([^<]+)/&&print $1,"\n"';}
+alias rt='ls -a | grep -E "^(\#.*\#|.*~)$" | xargs -n 1 -x rm'
 
 export PATH=`unique_path "${PATH}"`
+
+#  ____                ____                       	
+# |  _ \ _   _ _ __   / ___|  ___  _ __ ___   ___ 	
+# | |_) | | | | '_ \  \___ \ / _ \| '_ ` _ \ / _ \	
+# |  _ <| |_| | | | |  ___) | (_) | | | | | |  __/	
+# |_| \_\\__,_|_| |_| |____/ \___/|_| |_| |_|\___|	
+                                                	
+#   ____                                          _     	
+#  / ___|___  _ __ ___  _ __ ___   __ _ _ __   __| |___ 	
+# | |   / _ \| '_ ` _ \| '_ ` _ \ / _` | '_ \ / _` / __|	
+# | |__| (_) | | | | | | | | | | | (_| | | | | (_| \__ \	
+#  \____\___/|_| |_| |_|_| |_| |_|\__,_|_| |_|\__,_|___/	
+                                                      	
+                                                     	
+
+
+uname -v
+# df -H | awk 'NR==1 {FS = "  *"; OFS = "\t"; print $1,$2,$4,$9 } /^\/dev\/disk/ { print $1,$2,$4,$9 }' | (read -r ; printf "%s\n" "$REPLY"; sort -k 1,4)
+top -l 1 -n 0
