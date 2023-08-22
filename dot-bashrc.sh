@@ -20,10 +20,11 @@ function unique_path {
 
 function whatsup {
     MASK=$(ifconfig  | awk 'BEGIN { FS = "  *";} /cast/ {print $6}' | sed 's/255/*/')
-    CMD="nmap -sP -T5 $MASK"
+    CMD="nmap -sP -T5 $MASK "
     echo $CMD
-    $CMD
+    $CMD | awk ' /report/ { if ($6 == "") { print $5;} else{ printf "%16s\t%s\n",$6,$5;}};'  | sed 's/[ \(\)]//g' | sort -V | uniq    
 }
+
 
 function psg {
     if [ "" != "$1" ]
