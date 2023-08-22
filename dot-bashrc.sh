@@ -8,7 +8,10 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 # |  _|| |_| | | | | (__| |_| | (_) | | | \__ \
 # |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
 
-
+# do the next command ignoring the first line of the stream (ex. "body sort -k 3" to skip the headers)
+function body {
+    (read -r; printf '%s\n' "$REPLY"; "$@")    
+}
 
 # remove dups from path...
 function unique_path {
@@ -22,17 +25,17 @@ function whatsup {
     $CMD
 }
 
-
 function psg {
     if [ "" != "$1" ]
     then
         PRG=$1
-        ps aux | awk -v cmd="$PRG"  'BEGIN { FS = "  *"; OFS="\t";  print "looking for " cmd "\n";} NR==1 {print $2,$11;} $11 ~ cmd {print $2,$11;}'
+	COLS=$(($(tput cols)-(7+13+7+7+9+10)))
+	CCOLS=$(($COLS -1 ))
+        ps aux | awk -v cmd="$PRG" -v s="%-6.5s %-12.11s %-6.5s %-6.5s %-8.7s %-9.8s %-${COLS}.${CCOLS}s\n" 'BEGIN { FS = "  *"; OFS="\t";  print "Looking for " cmd "...\n";} NR==1 {printf s,$2,$1,$3,$4,$9,$10,$11;} $11 ~ cmd {c = ""; for (i = 11; i <= NF; i++) c = c $i " "; printf s,$2,$1,$3,$4,$9,$10,c;}'
     else
         echo "psg : Program name"
     fi
 }
-
 # kill all programs named
 
 function killall {
